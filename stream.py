@@ -16,7 +16,7 @@ class TweetStream(tweepy.StreamingClient):
     def start_stream(self, rules, autostop=None):
         """
 
-        :param autostop:
+        :param autostop: after "autostop" seconds the connection will stop automatically
         :param rules: the rules for filter streaming data
         :return:
         """
@@ -42,7 +42,6 @@ class TweetStream(tweepy.StreamingClient):
 
 
 if __name__ == "__main__":
-    # t = TweetStream()
     rules = 'Fantastic beasts, -is:retweet'
     d = TweetStream(bearer_token)
     d.start_stream(rules, autostop=10)
