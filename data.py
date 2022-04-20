@@ -19,20 +19,12 @@ class TweetData(object):
     def __init__(self):
         self.db_link = self.get_connection()
         self.db = self.init_db()
-        self.client = tweepy.Client(bearer_token,
-                                    consumer_key,
-                                    consumer_secret,
-                                    access_token,
-                                    access_token_secret,
-                                    return_type=dict)
 
     def stream_data(self):
         """
         search data from tweepy api through specific keywords
         :return: data-->dic
         """
-        rst = self.client.search_recent_tweets("Jackson Wang", max_results=20)
-        return rst["data"]
 
     def filter_data(self):
         """
@@ -65,8 +57,7 @@ class TweetData(object):
         insert new tweets into the database
         :return:
         """
-        for i in data:
-            self.db.insert_one(i)
+        self.db.insert_one(data)
 
     def extract_db(self):
         """
@@ -81,11 +72,4 @@ class TweetData(object):
         """
 
 
-if __name__ == "__main__":
-    data = TweetData()
-    for i in data.stream_data():
-        data.db.insert_one(i)
-
-
-
-
+# if __name__ == "__main__":

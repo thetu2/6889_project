@@ -13,10 +13,14 @@ bearer_token = "AAAAAAAAAAAAAAAAAAAAANxtbgEAAAAArzLC%2FeQ8hn1FEPtHsLdTdceGRDc%3D
 
 
 class TweetStream(tweepy.StreamingClient):
-    def start_stream(self, rules, autostop=None):
+    def __init__(self, bearer_token, **kwargs):
+        super().__init__(bearer_token, **kwargs)
+        self.db = TweetData()
+
+    def start_stream(self, rules, rule_id, autostop=None):
         """
 
-        :param autostop:
+        :param autostop: after "autostop" seconds the connection will stop automatically
         :param rules: the rules for filter streaming data
         :return:
         """
@@ -25,9 +29,8 @@ class TweetStream(tweepy.StreamingClient):
             self.stop_stream()
             print("Auto-disconnecting after " + str(autostop) + " seconds....")
 
-        stream_rules = tweepy.StreamRule(value=rules)
+        stream_rules = tweepy.StreamRule(value=rules, id=rule_id)
         self.add_rules(stream_rules)
-
         if autostop is not None:
             t = Thread(target=auto_stop)
             t.start()
@@ -36,14 +39,14 @@ class TweetStream(tweepy.StreamingClient):
     def stop_stream(self):
         self.disconnect()
 
-    def on_tweet(self, tweet):
-
-        print(tweet.text)
+    def on_data(self, raw_data):
+        data = json.loads(raw_data)
+        self.db.insert_db(data['data'])
 
 
 if __name__ == "__main__":
-    # t = TweetStream()
-    rules = 'Fantastic beasts, -is:retweet'
+    rules = 'Spiderman'
+    rule_id = 'movie2'
     d = TweetStream(bearer_token)
-    d.start_stream(rules, autostop=10)
+    d.start_stream(rules, rule_id, autostop=10)
 
