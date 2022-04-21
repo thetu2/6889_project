@@ -1,6 +1,6 @@
 import tweepy
 
-client = tweepy.Client(bearer_token='AAAAAAAAAAAAAAAAAAAAAIKSbgEAAAAAov8EpD%2Fv0t3lkNldNBf5b8uor3Q%3DMLBvfGbrmzUblqapzMo0y2HdiFqs0yCgrsEQpt5nDM1pQODve3')
+client = tweepy.Client(bearer_token='bearer token here')
 
 # Replace with your own search query
 query = 'fantastic beasts -is:retweet lang:en place_country:US'

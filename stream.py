@@ -7,11 +7,11 @@ from collections import deque
 
 
 # the passwords needed to get access in the twitter api
-consumer_key = "YC7BRyfMoIrFECEt38fwZP9cJ"
-consumer_secret = "l8GZHl35sJbgRJtryGruWXzBWTtgSw0RWrUFXS4qsSZGdIRdjS"
-access_token = "1238106378243149825-9Vxt86ygz5x76RzaSgx7ubN34TrBKD"
-access_token_secret = "AHZO6UJraNBMfAv53aqz52LSz2JNB6CCxKk2E6R8vQ95P"
-bearer_token = "AAAAAAAAAAAAAAAAAAAAAIKSbgEAAAAAov8EpD%2Fv0t3lkNldNBf5b8uor3Q%3DMLBvfGbrmzUblqapzMo0y2HdiFqs0yCgrsEQpt5nDM1pQODve3"
+consumer_key = "your consumer key here"
+consumer_secret = "your consumer key secret here"
+access_token = "your access token here"
+access_token_secret = "your access token secret here"
+bearer_token = "your bearer token here"
 
 
 class TweetStream(tweepy.StreamingClient):

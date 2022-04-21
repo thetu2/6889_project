@@ -4,17 +4,11 @@ from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 
 # the passwords needed to get access in the twitter api
-consumer_key = "p3G1cqeOLxEtVGoYhhRKjSADO"
-consumer_secret = "3uSVuDS7iP7sdlsUxVpnBpET0WCBRXr5LnmQl84g2puT3xgQjZ"
-access_token = "1508561637367861252-AFUs4bKLlPQ1sOkvRq1xeQH3yBx2N4"
-access_token_secret = "Z1VjLxjD2OEquHdtFD0dhqSenVZ48jE0rzCp3svhVyqae"
-bearer_token = "AAAAAAAAAAAAAAAAAAAAANxtbgEAAAAArzLC%2FeQ8hn1FEPtHsLdTdceGRDc%3D7jNiD8tfpYHeEEPKCWKnXaqGvATDi0XqJ95EL0Pgt3V17egAY1"
-
-# initialize the client agent
-# client = tweepy.Client(bearer_token, consumer_key, consumer_secret, access_token, access_token_secret, return_type=dict)
-# rst = client.search_recent_tweets("Jackson Wang", max_results=20)
-# for i in rst['data']:
-#     print(i)
+consumer_key = "your consumer key here"
+consumer_secret = "your consumer key secret here"
+access_token = "your access token here"
+access_token_secret = "your access token secret here"
+bearer_token = "your bearer token here"
 
 
 class TweetData(object):
