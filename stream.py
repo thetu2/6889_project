@@ -19,7 +19,7 @@ class TweetStream(tweepy.StreamingClient):
         super().__init__(bearer_token, **kwargs)
         self.db = TweetData()
         self.buffer = deque()
-        self.buffer_limit = 5
+        self.buffer_limit = 10
 
     def start_stream(self, rules, autostop=None):
         """
