@@ -21,7 +21,14 @@ class TweetStream(tweepy.StreamingClient):
         self.buffer = deque()
         self.buffer_limit = 10
 
-    def start_stream(self, rules, autostop=None):
+    def create_rules(self, rules):
+        for r in rules:
+            new_rule = tweepy.StreamRule(value=rules[r], tag=r)
+            self.db.init_db(r)
+            self.add_rules(new_rule)
+            print(new_rule.tag)
+
+    def start_stream(self, autostop=None):
         """
 
         :param autostop: after "autostop" seconds the connection will stop automatically
@@ -33,8 +40,6 @@ class TweetStream(tweepy.StreamingClient):
             self.stop_stream()
             print("Auto-disconnecting after " + str(autostop) + " seconds....")
 
-        stream_rules = tweepy.StreamRule(value=rules)
-        self.add_rules(stream_rules)
         if autostop is not None:
             t1 = Thread(target=auto_stop)
             t1.start()
@@ -49,6 +54,16 @@ class TweetStream(tweepy.StreamingClient):
         for r in response.data:
             self.delete_rules(r.id)
 
+    def clear_buffer(self):
+        while True:
+            try:
+                item = self.buffer.popleft()  # tweet data
+                movies = item['matching_rules']  # movie names
+                for i in movies:
+                    self.db.insert_db(item, i['tag'])
+            except IndexError:
+                break
+
     def on_data(self, raw_data):
         data = json.loads(raw_data)
         self.buffer.append(data)
@@ -57,17 +72,17 @@ class TweetStream(tweepy.StreamingClient):
             t2 = Thread(target=self.clear_buffer)
             t2.start()
 
-    def clear_buffer(self):
-        while True:
-            try:
-                self.db.insert_db(self.buffer.popleft())
-            except IndexError:
-                break
+    def on_connection_error(self):
+        print("Error: connection error!")
+        self.disconnect()
+
+    def on_errors(self, errors):
+        print("Error detected, reconnecting in a few seconds...")
+        self.start_stream()
 
 
 if __name__ == "__main__":
-    rules = 'doctor strange lang:en'
+    _rules = {'doctor strange': 'doctor strange lang:en', 'spider man': 'spider man lang:en', 'Morbius': 'Morbius lang:en'}
     d = TweetStream(bearer_token)
-    d.start_stream(rules, autostop=50)
-    r = d.get_rules()
-    print(r)
+    d.create_rules(_rules)
+    d.start_stream(autostop=50)

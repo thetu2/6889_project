@@ -1,7 +1,12 @@
 import tweepy
+import datetime
 import pymongo
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
+from geopy.extra.rate_limiter import RateLimiter
+from dateutil import parser
+import time
+
 
 # the passwords needed to get access in the twitter api
 consumer_key = "your consumer key here"
@@ -14,19 +19,14 @@ bearer_token = "your bearer token here"
 class TweetData(object):
     def __init__(self):
         self.db_link = self.get_connection()
-        self.db = self.init_db()
-
+        self.collections = {}
+        self.db = self.db_link["twitter"]
+        self.geo_locator = Nominatim(user_agent="tweets_location")
 
     def stream_data(self):
         """
         search data from tweepy api through specific keywords
         :return: data-->dic
-        """
-
-    def filter_data(self):
-        """
-        select useful data
-        :return:
         """
 
     def get_connection(self):
@@ -40,16 +40,17 @@ class TweetData(object):
             )
         return client
 
-    def init_db(self):
+    def init_db(self, movie):
         """
         initialize the database "twitter" with collection "records"
         with attributes: time, location, txt
         :return: records_collection
         """
-        records_collection = self.db_link["twitter"]["records"]
+        records_collection = self.db[movie]
+        self.collections[movie] = records_collection
         return records_collection
 
-    def insert_db(self, data):
+    def insert_db(self, data, movie):
         """
         insert new tweets into the database
         :return:
@@ -64,47 +65,70 @@ class TweetData(object):
             location = None
 
         data['data']['location'] = location
+        data['data']['created_at'] = parser.parse(data['data']['created_at'])
 
-        city = None
-        country = None
-        if location:
-            address = self.lookup_location(location)
-            if address:
-                city = address.get('state', None)
-                country = address.get('country_code', None)
-
-        data['data']['city'] = city
-        data['data']['country'] = country
+        # city = None
+        # country = None
+        # if location:
+        #     raw_data = self.lookup_latitude(location)
+        #     if raw_data:
+        #         address = self.lookup_location(raw_data)
+        #         city = address.get('state', None)
+        #         country = address.get('country_code', None)
+        #
+        # data['data']['city'] = city
+        # data['data']['country'] = country
 
         print(data['data'])
-        self.db.insert_one(data['data'])
+        self.collections[movie].insert_one(data['data'])
 
-    def extract_db(self):
+    def extract_db_bylocation(self, movie, country):
         """
         extract needed data records from database
         :return:
         """
+        query = {"country": country}
+        rst = self.db[movie].find(query)
+        for i in rst:
+            print(i)
 
-    def clear_db(self):
+    def extract_db_bytime(self, movie, start_time, end_time):
         """
-        clear the database
+        extract needed data records from database
         :return:
         """
+        query = {"created_at": {"$gte": start_time,
+                                "$lt": end_time}}
 
-    def lookup_location(self, location):
-        geo_locator = Nominatim(user_agent="tweets_location")
-        try:
-            data = geo_locator.geocode(location, language='en')
-            if data:
-                latitude = data.raw.get("lat")
-                longitude = data.raw.get("lon")
-                location = geo_locator.reverse(latitude + "," + longitude, language='en')
-                address = location.raw['address']
-            else:
-                address = None
-        except GeocoderTimedOut:
-            return None
-        return address
+        rst = self.db[movie].find(query)
+        for i in rst:
+            print(i)
+
+    def clear_db(self, movie):
+        """
+        drop the collection from database
+        :return: None
+        """
+        if self.collections[movie].drop():
+            print("Collection "+movie+" has been dropped...")
+
+    # def lookup_latitude(self, location):
+    #     try:
+    #         data = self.geo_locator.geocode(location, language='en')
+    #     except GeocoderTimedOut as e:
+    #         return None
+    #     return data
+    #
+    # def lookup_location(self, data):
+    #     latitude = data.raw.get("lat")
+    #     longitude = data.raw.get("lon")
+    #     location = self.geo_locator.reverse(latitude + "," + longitude, language='en')
+    #     address = location.raw['address']
+    #     return address
 
 
-# if __name__ == "__main__":
+if  __name__ == "__main__":
+    d = TweetData()
+    d.extract_db_bytime("spider man", datetime.datetime(2022, 4, 23, 18, 52, 15),
+                        datetime.datetime(2022, 4, 23, 18, 52, 58))
+    # d.extract_db_bylocation("spider man", "us")
