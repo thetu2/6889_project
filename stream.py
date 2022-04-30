@@ -43,7 +43,7 @@ class TweetStream(tweepy.StreamingClient):
         if autostop is not None:
             t1 = Thread(target=auto_stop)
             t1.start()
-        self.filter(tweet_fields=['created_at'], expansions='author_id', user_fields=['location'])
+        self.filter(tweet_fields=['created_at'], expansions=['author_id', 'referenced_tweets.id'], user_fields=['location', 'created_at', 'public_metrics'])
 
     def stop_stream(self):
         self.clean_rules()
@@ -85,4 +85,4 @@ if __name__ == "__main__":
     _rules = {'doctor strange': 'doctor strange lang:en', 'spider man': 'spider man lang:en', 'Morbius': 'Morbius lang:en'}
     d = TweetStream(bearer_token)
     d.create_rules(_rules)
-    d.start_stream(autostop=50)
+    d.start_stream(autostop=30)

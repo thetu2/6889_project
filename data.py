@@ -55,6 +55,9 @@ class TweetData(object):
         insert new tweets into the database
         :return:
         """
+
+        # print(data['data'])
+        # print(data['includes'])
         users = {u["id"]: u for u in data['includes']['users']}
         user_id = data['data']['author_id']
         user = users[user_id]
@@ -69,6 +72,20 @@ class TweetData(object):
         if type(date) != datetime.datetime:
             data['data']['created_at'] = parser.parse(date)
 
+        if 'created_at' in user:
+            data['data']['joined_at'] = parser.parse(user['created_at'])
+        else:
+            data['data']['joined_at'] = None
+
+        if 'public_metrics' in user:
+            data['data']['followers_count'] = user['public_metrics']['followers_count']
+        else:
+            data['data']['followers_count'] = 0
+
+        if 'referenced_tweets' in data['data'] and data['data']['referenced_tweets'][0]['type']=='retweeted':
+            data['data']['text'] = data['includes']['tweets'][0]['text']
+            del data['data']['referenced_tweets']
+
         # city = None
         # country = None
         # if location:
@@ -81,7 +98,7 @@ class TweetData(object):
         # data['data']['city'] = city
         # data['data']['country'] = country
 
-        print(data['data'])
+        print(data['data'], '\n')
         self.collections[movie].insert_one(data['data'])
 
     def extract_db_bylocation(self, movie, country):

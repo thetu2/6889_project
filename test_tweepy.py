@@ -1,11 +1,11 @@
 import tweepy
 
-client = tweepy.Client(bearer_token='bearer token here')
+client = tweepy.Client(bearer_token='AAAAAAAAAAAAAAAAAAAAAKZHbwEAAAAASohELgdi7bxOwxx4H5bqN92RvC0%3DRDnzGBj0MLtuNvuLGoPJgGntaMTDrLJNcVOLVawCdYiKT9lcXQ')
 
 # Replace with your own search query
-query = 'fantastic beasts -is:retweet lang:en place_country:US'
+query = 'fantastic beasts -is:retweet lang:en'
 
-tweets = client.search_recent_tweets(query=query, tweet_fields=['created_at'], max_results=20, expansions='author_id', user_fields=['name', 'location'])
+tweets = client.search_recent_tweets(query=query, tweet_fields=['created_at', 'geo'], max_results=20, expansions=['author_id', 'referenced_tweets.id'], user_fields=['name', 'location', 'created_at'])
 
 
 # Get users list from the includes object
