@@ -65,7 +65,9 @@ class TweetData(object):
             location = None
 
         data['data']['location'] = location
-        data['data']['created_at'] = parser.parse(data['data']['created_at'])
+        date = data['data']['created_at']
+        if type(date) != datetime.datetime:
+            data['data']['created_at'] = parser.parse(date)
 
         # city = None
         # country = None
@@ -94,19 +96,25 @@ class TweetData(object):
 
     def extract_db_bytime(self, movie, start_time, end_time):
         """
-        extract needed data records from database
-        :return:
+        extract data from database by time range
+        :param movie: the name of movie (string)
+        :param start_time: the start time of the time range(datetime)
+        :param end_time: the end time of the time range(datetime)
+        :return: a dictionary of data records
         """
         query = {"created_at": {"$gte": start_time,
                                 "$lt": end_time}}
 
         rst = self.db[movie].find(query)
+        output = {}
         for i in rst:
-            print(i)
+            output[i['_id']] = i
+        return output
 
     def clear_db(self, movie):
         """
-        drop the collection from database
+        drop the specific movie collection from database
+        :param movie: the collection name(string
         :return: None
         """
         if self.collections[movie].drop():
@@ -127,8 +135,7 @@ class TweetData(object):
     #     return address
 
 
-if  __name__ == "__main__":
+if __name__ == "__main__":
     d = TweetData()
-    d.extract_db_bytime("spider man", datetime.datetime(2022, 4, 23, 18, 52, 15),
-                        datetime.datetime(2022, 4, 23, 18, 52, 58))
-    # d.extract_db_bylocation("spider man", "us")
+    rst = d.extract_db_bytime("spider man", datetime.datetime(2022, 4, 23, 20, 3, 30),
+                              datetime.datetime(2022, 4, 23, 20, 52, 58))
