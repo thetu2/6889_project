@@ -13,7 +13,6 @@ access_token = "your access token here"
 access_token_secret = "your access token secret here"
 bearer_token = "your bearer token here"
 
-
 class TweetStream(tweepy.StreamingClient):
     def __init__(self, bearer_token, **kwargs):
         super().__init__(bearer_token, **kwargs)

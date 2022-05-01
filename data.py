@@ -126,6 +126,7 @@ class TweetData(object):
         output = {}
         for i in rst:
             output[i['_id']] = i
+        print(output)
         return output
 
     def clear_db(self, movie):

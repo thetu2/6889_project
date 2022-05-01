@@ -60,12 +60,12 @@ class TweetFeels(object):
                   (default = 0.99)
     """
     #_db_factory = (lambda db: TweetData(db))
-    d = TweetData()
-    def __init__(self, starttime, endtime,tracking=[]):
+    def __init__(self, starttime, endtime,tracking):
+        d=TweetData()
         self.start=starttime
         self.end=endtime
         self.tracking = tracking
-        self._feels=d.extract_db_bytime(self.start, self.end, self.tracking)
+        self._feels=d.extract_db_bytime(self.tracking, self.start, self.end)
         self.lang = ['en']
         self._sentiment = Sentiment(0)
         self._factor = 0.99
@@ -74,15 +74,14 @@ class TweetFeels(object):
     def factor(self):
         return self._factor
 
-    @factor.setter #The fall-off factor used in real-time sentiment calculation
+    @factor.setter  # The fall-off factor used in real-time sentiment calculation
     def factor(self, value):
         assert(value<=1 and value>0)
         self._factor = value
 
-    @property #overall sentiment score initialization 
+    @property  # overall sentiment score initialization
     def sentiment(self):
         sentiments = self.sentiments(bins=self._feels)
-        s = None
         for s in sentiments:
             pass
         return s
@@ -112,26 +111,26 @@ class TweetFeels(object):
         # start yielding sentiment values
         sentiment = deque()
         for index in range(len(keys)):
-            b=bins.get(keys[index]) #b is string
+            b=bins.get(keys[index])  # b is dictionary
             try:
-                self._sentiment = sentiment.popleft() # pop the left element
+                self._sentiment = sentiment.popleft()  # pop the left element
             except IndexError:
                 pass
 
             latest = self._sentiment
-            if len(b) > 0:
+            if len(b['text']) > 0:
                 latest = self.model_sentiment(
-                    b, self._sentiment, self._factor
+                    b['text'], self._sentiment, self._factor
                     )
-                sentiment.append(latest) #push the grade to the deque
-                self._latest_calc = b.start #change to the next beginning time #changeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee b.start
+                sentiment.append(latest)  # push the grade to the deque
+                # self._latest_calc = b.start #change to the next beginning time #changeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee b.start
                 # Yield the latest element
-                if len(b) == 0 and nans:
+                if len(b['text']) == 0 and nans:
                     yield Sentiment(np.nan)  #changeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
                 else:
                     yield sentiment[-1]
 
-    def calculate_sentiment(data):
+    def calculate_sentiment(self,data):
         _data=data
         t = clean(_data)
         cal_sentiment = SentimentIntensityAnalyzer().polarity_scores(t)
@@ -149,14 +148,15 @@ class TweetFeels(object):
         newval = s.value
         if(len(b)>0):
             try:
-                val = self.calculate_sentiment(d).get('compound') #the score is based on the followers need to change
+                val = self.calculate_sentiment(b)  # the score is based on the followers need to change
+                val=val.get('compound')
             except ZeroDivisionError:
                 val = 0
-            newval = s.value*fo + val*(1-fo) #has the decreasing factor
+            newval = s.value*fo + val*(1-fo)  # has the decreasing factor
         return Sentiment(newval)
 
 if  __name__ == "__main__":
     d = TweetData()
-    d.extract_db_bytime("spider man", datetime.datetime(2022, 4, 23, 18, 52, 15), datetime.datetime(2022, 4, 23, 18, 52, 58))
-    spider_feels=TweetFeels(datetime.datetime(2022, 4, 23, 18, 52, 15), datetime.datetime(2022, 4, 23, 18, 52, 58), tracking=['spider man'])
+    d.extract_db_bytime("spider man", datetime(2022, 4, 23, 18, 52, 15), datetime(2022, 4, 23, 18, 52, 58))
+    spider_feels=TweetFeels(datetime(2022, 4, 23, 20, 2, 15), datetime(2022, 4, 23, 22, 52, 58), tracking='spider man')
     print(spider_feels.sentiment.value)
