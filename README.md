@@ -12,6 +12,12 @@ Accomplished sentiment analysis on real-time tweets;<br>
 Obtained movie rating considering followers, age, and timestamp; <br>
 Displayed real-time sentiment score based on pyspark using weighting and averaging.<br>
 
+Usage:
+---
+1. Fill consumer_key = "your consumer key here", consumer_secret = "your consumer key secret here", access_token = "your access token here", access_token_secret = "your access token secret here", bearer_token = "your bearer token here" in data.py and stream.py. Authorization keys in the examples are masked for privacy.<br>
+2. Sign in/up a mongodb platform.<br>
+3. Run stream.py to get real time streaming tweet using tweepy. Run sentiment.py to get scores based on these tweets. Run display.py to see the real time trends.<br>
+
 Directory：
 ---
 ```./
